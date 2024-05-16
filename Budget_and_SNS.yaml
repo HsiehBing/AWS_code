@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  EmailAddress:
+    Type: String
+    Default: test@example.com
+    Description: Email address for budget notifications
+Resources:
+  MyBudget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget: 
+          BudgetLimit: 
+              Amount: 3000
+              Unit: USD
+          BudgetName: 'bingtestbudget'
+          BudgetType: COST
+          TimeUnit: MONTHLY
+      NotificationsWithSubscribers: 
+        - Notification: 
+              ComparisonOperator: GREATER_THAN
+              NotificationType: FORECASTED
+              Threshold: 80
+              ThresholdType: PERCENTAGE
+          Subscribers: 
+            - Address: !Ref EmailAddress
+              SubscriptionType: EMAIL
+        - Notification: 
+              ComparisonOperator: GREATER_THAN
+              NotificationType: FORECASTED
+              Threshold: 100
+              ThresholdType: PERCENTAGE
+          Subscribers: 
+            - Address: !Ref EmailAddress
+              SubscriptionType: EMAIL
+        - Notification: 
+              ComparisonOperator: GREATER_THAN
+              NotificationType: ACTUAL
+              Threshold: 100
+              ThresholdType: PERCENTAGE
+          Subscribers: 
+            - Address: !Ref EmailAddress
+              SubscriptionType: EMAIL 
+        - Notification: 
+              ComparisonOperator: GREATER_THAN
+              NotificationType: ACTUAL
+              Threshold: 80
+              ThresholdType: PERCENTAGE
+          Subscribers: 
+            - Address: !Ref EmailAddress
+              SubscriptionType: EMAIL                                          
+

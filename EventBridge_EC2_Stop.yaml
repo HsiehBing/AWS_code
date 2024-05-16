@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: 2010-09-09
+# Parameter
+Parameters:
+  EventSchedule:
+    Type: String
+    Default: "cron(0 23 * * ? *)"
+
+# Lambda Execution Role
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: Stop_EC2-LambdaExecutionRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: Stop_EC2_LambdaExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - ec2:Stop*
+                  - ec2:DescribeInstances
+                Resource: "*"
+              - Effect: Allow
+                Action: 
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "arn:aws:logs:*:*:*"              
+
+  Ec2StopRule:
+    Type: AWS::Events::Rule
+    DependsOn: 
+      - Ec2StopFunction
+    Properties:
+      EventBusName: default
+      Name: EC2_Stop_EventBridge
+      ScheduleExpression: !Ref EventSchedule
+      State: ENABLED
+      Targets:        
+        - Arn: !GetAtt Ec2StopFunction.Arn
+          Id: ec2stopping          
+
+
+  Ec2StopFunction:                        
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.lambda_handler
+      FunctionName: EC2_Stop-Function 
+      Timeout: 60
+      Role: !GetAtt LambdaExecutionRole.Arn 
+      MemorySize: 128
+      Runtime: python3.10
+      Code:
+        ZipFile: |
+            import boto3
+            def lambda_handler(event, context):
+
+              regions = ['ap-northeast-1','ap-southeast-1']
+              for region in regions:
+                ID_list= []
+                ec2_client = boto3.client('ec2', region_name=region)
+                instances = ec2_client.describe_instances()
+                
+                for instance in instances['Reservations']:
+                    instanceID = instance['Instances'][0]['InstanceId']
+                    instance_state = instance['Instances'][0]['State']['Name']
+                    if instance_state == 'running':
+                        ID_list.append(instanceID)
+                ec2_client.stop_instances(InstanceIds=ID_list)
+                print('stopped your instances: ' + str(instances))
+
+
+###--InvokePermission--###
+  LambdaInvokePermissionApiGateway:
+    Type: 'AWS::Lambda::Permission'  
+    DeletionPolicy: Delete
+    Properties:
+      Action: 'lambda:InvokeFunction'  
+      FunctionName: !Ref Ec2StopFunction 
+      Principal: 'events.amazonaws.com'  
+      SourceArn: !GetAtt Ec2StopRule.Arn 
