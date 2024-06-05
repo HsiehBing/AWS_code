@@ -1,0 +1,60 @@
+##############################################################################
+##  SSOCreateAccountAssignment 中 Resource 中的 account 需要修改Account ID     ##
+##  如果需要多個Account,可以複製多個account項。                                  ##
+## ------------------------------------------------------------------------ ##
+##  PermissionSet 中可以指定user 可以設定的permissionSet                       ##
+##############################################################################
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "sso-directory-policy",
+            "Effect": "Allow",
+            "Action": [
+                "sso-directory:Describe*",
+                "sso-directory:Get*",
+                "sso-directory:List*",
+                "sso-directory:Search*"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Sid": "organizationListDescribe",
+            "Effect": "Allow",
+            "Action": [
+                "organizations:List*",
+                "organizations:Describe*"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Sid": "SSOListDescribeGet",
+            "Effect": "Allow",
+            "Action": [
+                "sso:List*",
+                "sso:Describe*",
+                "sso:Get*"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Sid": "SSOCreateAccountAssignment",
+            "Effect": "Allow",
+            "Action": [
+                "sso:CreateAccountAssignment",
+                "sso:DeleteAccountAssignment"
+            ],
+            "Resource": [
+                "arn:aws:sso:::account/<Change the accountID>",
+                "arn:aws:sso:::permissionSet/*/*",
+                "arn:aws:sso:::instance/*"
+            ]
+        }
+    ]
+}

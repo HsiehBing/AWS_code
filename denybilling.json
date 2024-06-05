@@ -1,0 +1,31 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DenyBilling",
+            "Effect": "Deny",
+            "Action": [
+                "billing:*",
+                "aws-portal:*",
+                "ce:*",
+                "billingconductor:*",
+                "consolidatedbilling:*",
+                "savingsplans:*",
+                "bcm-data-exports:*",
+                "budgets:*",
+                "cost-optimization-hub:*",
+                "tax:*",
+                "cur:*",
+                "freetier:*",
+                "invoicing:*",
+                "payments:*",
+                "purchase-orders:*",
+                "sustainability:GetCarbonFootprintSummary",
+                "pricing:*"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+}
