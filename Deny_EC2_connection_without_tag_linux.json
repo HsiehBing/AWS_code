@@ -1,0 +1,42 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:DescribeInstanceStatus",
+                "ec2:DescribeInstances",
+                "ssm:DescribeInstanceInformation"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:GetConnectionStatus",
+                "ssm:StartSession"
+            ],
+            "Resource": [
+                "arn:aws:ec2:{Region}:{Account}:instance/*"
+            ],
+            "Condition": {
+                "StringLike": {
+                    "ssm:resourceTag/Team": [
+                        "Alpha"
+                    ]
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:StartSession"
+            ],
+            "Resource": [
+                "arn:aws:ssm:{Region}:{Account}:document/SSM-SessionManagerRunShell"
+            ]
+        }
+    ]
+}
